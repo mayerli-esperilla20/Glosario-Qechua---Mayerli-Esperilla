@@ -203,22 +203,8 @@ function pintar(){
 // Audio: voz en español del dispositivo leyendo la pronunciación escrita
 function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(toast.id);toast.id=setTimeout(()=>t.classList.remove("show"),2800)}
 function mejorVoz(){
-  const voces = speechSynthesis.getVoices().filter(v=>/^es(-|_)/i.test(v.lang));
-  if(!voces.length) return null;
-
-  const puntuar = v => {
-    let p = 0;
-    if(/^es-PE/i.test(v.lang)) p += 30;
-    else if(/^es-(MX|CO|AR|CL|US)/i.test(v.lang)) p += 20;
-    else p += 10;
-
-    if(/natural|neural|enhanced|premium|google|online/i.test(v.name)) p += 50;
-    if(v.localService) p += 2;
-
-    return p;
-  };
-
-  return [...voces].sort((a,b)=>puntuar(b)-puntuar(a))[0];
+  const pts=v=>(/natural|neural|online|premium|enhanced|google/i.test(v.name)?10:0)+(/PE|419|MX|US|CO|AR/i.test(v.lang)?3:0)+(v.localService?0:1);
+  return speechSynthesis.getVoices().filter(v=>/^es/i.test(v.lang)).sort((a,b)=>pts(b)-pts(a))[0];
 }
 function hablar(q,btn){
   if(!("speechSynthesis" in window)) return toast("Tu navegador no admite audio. Prueba con Chrome, Edge o Safari.");
